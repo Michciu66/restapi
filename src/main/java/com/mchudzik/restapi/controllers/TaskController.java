@@ -21,7 +21,8 @@ import com.mchudzik.restapi.exceptions.StatusNotFoundException;
 import com.mchudzik.restapi.exceptions.TaskNotFoundException;
 import com.mchudzik.restapi.exceptions.UserNotFoundException;
 
-@RestController("/tesks")
+@RestController
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskRepository repo;
     private final TaskModelAssembler assembler;
@@ -103,7 +104,6 @@ public class TaskController {
         }
         catch(Exception e)
         {
-            System.out.println("Sanitize input, " + status + " is not a valid option for Status");
             throw new StatusNotFoundException(status);
         }
     }

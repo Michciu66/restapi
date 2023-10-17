@@ -1,6 +1,8 @@
 package com.mchudzik.restapi.models;
 
 
+import java.util.Objects;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -38,9 +40,9 @@ public class User {
         return this.email;
     }
 
-    public void setID(Long ID)
+    public void setID(Long id)
     {
-        this.id = ID;
+        this.id = id;
     }
 
     public void setName(String name){
@@ -66,8 +68,14 @@ public class User {
         {
             return false;
         }
-        User User = (User) o;
-        return this.id == User.id;
+        User user = (User) o;
+        return this.id == user.id;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.id, this.name, this.surname, this.email);
     }
 
     @Override

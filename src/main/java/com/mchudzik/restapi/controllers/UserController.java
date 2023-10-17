@@ -15,7 +15,8 @@ import com.mchudzik.restapi.exceptions.UserNotFoundException;
 import com.mchudzik.restapi.models.User;
 import com.mchudzik.restapi.repositories.UserRepository;
 
-@RestController("/users")
+@RestController()
+@RequestMapping("/users")
 public class UserController {
     private final UserRepository repo;
     private final UserModelAssembler assembler;
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) 
+    public ResponseEntity<?> DeleteUser(@PathVariable Long id) 
     {
         repo.deleteById(id);
 
