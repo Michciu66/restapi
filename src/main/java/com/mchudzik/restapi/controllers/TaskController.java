@@ -37,18 +37,18 @@ public class TaskController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<Task>> ListTasks()
+    public CollectionModel<EntityModel<Task>> listTasks()
     {
         List<EntityModel<Task>> tasks = repo.findAll().stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).ListTasks()).withSelfRel());
+        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).listTasks()).withSelfRel());
 
     }
 
     @PostMapping
-    public ResponseEntity<?> CreateTask(@RequestBody Task task)
+    public ResponseEntity<?> createTask(@RequestBody Task task)
     {
         EntityModel<Task> entityModel = assembler.toModel(repo.save(task));
 
@@ -63,7 +63,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<Task> FindTaskByID(@PathVariable Long id)
+    public EntityModel<Task> findTaskByID(@PathVariable Long id)
     {
         Task task = repo.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
         
@@ -72,35 +72,35 @@ public class TaskController {
     }
 
     @GetMapping("ByUser")
-    public CollectionModel<EntityModel<Task>> FindTaskByUserID(@RequestParam Long id)
+    public CollectionModel<EntityModel<Task>> findTaskByUserID(@RequestParam Long id)
     {
         List<EntityModel<Task>> tasks = repo.findAllByAssignedUsers(id).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).FindTaskByUserID(id)).withSelfRel());
+        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskByUserID(id)).withSelfRel());
     }
 
     @GetMapping("ByName")
-    public CollectionModel<EntityModel<Task>> FindTaskByString(@RequestParam String str)
+    public CollectionModel<EntityModel<Task>> findTaskByString(@RequestParam String str)
     {
         List<EntityModel<Task>> tasks = repo.findAllByNameOrDescContainingIgnoreCase(str,str).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).FindTaskByString(str)).withSelfRel());
+        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskByString(str)).withSelfRel());
     }
 
     @GetMapping("ByStatus")
-    public CollectionModel<EntityModel<Task>> FindTaskByStatus(@RequestParam String status)
+    public CollectionModel<EntityModel<Task>> findTaskByStatus(@RequestParam String status)
     {
         try{
-            Status StatusEnum = Status.valueOf(status);
-            List<EntityModel<Task>> tasks = repo.findAllByStatus(StatusEnum).stream()
+            Status statusEnum = Status.valueOf(status);
+            List<EntityModel<Task>> tasks = repo.findAllByStatus(statusEnum).stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
-            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).FindTaskByStatus(status)).withSelfRel());
+            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskByStatus(status)).withSelfRel());
         }
         catch(Exception e)
         {
@@ -109,23 +109,23 @@ public class TaskController {
     }
 
     @GetMapping("BeforeDate")
-    public CollectionModel<EntityModel<Task>> FindTaskBeforeDate(@RequestParam LocalDate date)
+    public CollectionModel<EntityModel<Task>> findTaskBeforeDate(@RequestParam LocalDate date)
     {
         List<EntityModel<Task>> tasks = repo.findAllWithFinishDateBefore(date).stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
                 
-            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).FindTaskBeforeDate(date)).withSelfRel());
+            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskBeforeDate(date)).withSelfRel());
     }
 
     @GetMapping("BeforeDate/{startDate}/{endDate}")
-    public CollectionModel<EntityModel<Task>> FindTaskBetweenDates(@PathVariable LocalDate startDate, @PathVariable LocalDate endDate)
+    public CollectionModel<EntityModel<Task>> findTaskBetweenDates(@PathVariable LocalDate startDate, @PathVariable LocalDate endDate)
     {
         List<EntityModel<Task>> tasks = repo.findAllByFinishDateBetween(startDate, endDate).stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
                 
-            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).FindTaskBetweenDates(startDate, endDate)).withSelfRel());
+            return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskBetweenDates(startDate, endDate)).withSelfRel());
     }
     
     @PutMapping("/{id}")

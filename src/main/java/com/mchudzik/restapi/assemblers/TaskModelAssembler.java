@@ -15,7 +15,7 @@ public class TaskModelAssembler implements RepresentationModelAssembler<Task,Ent
     public EntityModel<Task> toModel(Task task)
     {
         return EntityModel.of(task, 
-        linkTo(methodOn(TaskController.class).FindTaskByID(task.getId())).withSelfRel(),
-        linkTo(methodOn(TaskController.class).ListTasks()).withRel("tasks"));
+        linkTo(methodOn(TaskController.class).findTaskByID(task.getId())).withSelfRel(),
+        linkTo(methodOn(TaskController.class).listTasks()).withRel("tasks"));
     }
 }

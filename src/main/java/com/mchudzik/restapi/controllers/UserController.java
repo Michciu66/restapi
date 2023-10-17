@@ -28,17 +28,17 @@ public class UserController {
     }
 
     @GetMapping()
-    public CollectionModel<EntityModel<User>> ListUsers()
+    public CollectionModel<EntityModel<User>> listUsers()
     {
         List<EntityModel<User>> users =  repo.findAll().stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(users, linkTo(methodOn(UserController.class).ListUsers()).withSelfRel());
+        return CollectionModel.of(users, linkTo(methodOn(UserController.class).listUsers()).withSelfRel());
     }
 
     @PostMapping()
-    public ResponseEntity<?> CreateUser(@RequestBody User user)
+    public ResponseEntity<?> createUser(@RequestBody User user)
     {
 
         EntityModel<User> entityModel = assembler.toModel(repo.save(user));
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> DeleteUser(@PathVariable Long id) 
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) 
     {
         repo.deleteById(id);
 
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<User> FindUserByID(@PathVariable Long id)
+    public EntityModel<User> findUserByID(@PathVariable Long id)
     {
         User user = repo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         
@@ -64,14 +64,14 @@ public class UserController {
     }
 
     @GetMapping("ByName")
-    public CollectionModel<EntityModel<User>> FindUserByString(@RequestParam String str)
+    public CollectionModel<EntityModel<User>> findUserByString(@RequestParam String str)
     {
 
         List<EntityModel<User>> users =  repo.findAllByNameOrSurnameContainingIgnoreCase(str, str).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(users, linkTo(methodOn(UserController.class).FindUserByString(str)).withSelfRel());
+        return CollectionModel.of(users, linkTo(methodOn(UserController.class).findUserByString(str)).withSelfRel());
 
     }
 

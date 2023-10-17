@@ -24,6 +24,9 @@ import org.springframework.context.annotation.Configuration;
         return args -> {
             log.info("Preloading " + taskRepo.save(new Task("hakowanie", "hakowanie hakowanie", Status.IN_PROGRESS, LocalDate.ofEpochDay(1))));
             log.info("Preloading " + taskRepo.save(new Task("naprawianie hakow", "bol", Status.NEW, LocalDate.ofEpochDay(2))));
+            log.info("Preloading " + userRepo.save(new User("jan", "kowalski", "jkowalski@gmail.com")));
+				log.info("Preloading " + userRepo.save(new User("john", "doe", "jdoe@domain.com")));
+				log.info("Preloading " + userRepo.save(new User("jan", "kochanowski", "jkochanowski@wp.com")));
         };
     }
 }
