@@ -1,5 +1,6 @@
 package com.mchudzik.restapi;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 import java.util.List;
@@ -41,13 +42,11 @@ class UserControllerTests {
 
 	private static final String USERS_PATH = "/users";
 
-	@BeforeEach 
+	@AfterEach 
 	public void resetRepo()
 	{
 		repo.deleteAll();
 		repo.flush();
-
-		prepareUserRepo();
 	}
 
 	private void prepareUserRepo()
@@ -61,11 +60,12 @@ class UserControllerTests {
 	@Test
 	void testGetAllUsers() throws Exception {
 		//given
-		
+		prepareUserRepo();
+
 		//when
 		mockMvc.perform(get(USERS_PATH))
 				//then
-				.andExpect(jsonPath("$._embedded.userList", hasSize((int)repo.count())));
+				.andExpect(jsonPath("$._embedded.userList", hasSize(3)));
 	}
 
 	@Test
@@ -133,7 +133,8 @@ class UserControllerTests {
 	@Test
 	void testDeleteUser() throws Exception{
 		//given
-		Long id = repo.findAll().get(1).getId();
+		prepareUserRepo();
+		Long id = repo.findAll().get(0).getId();
 
 		//when
 		mockMvc.perform(delete(USERS_PATH + "/{id}",id))
@@ -162,7 +163,8 @@ class UserControllerTests {
 	void testFindUser() throws Exception
 	{
 		//given
-		Long id = repo.findAll().get(1).getId();
+		prepareUserRepo();
+		Long id = repo.findAll().get(0).getId();
 
 		//when
 		MvcResult result = mockMvc.perform(get(USERS_PATH + "/{id}",id))
@@ -190,6 +192,7 @@ class UserControllerTests {
 	@Test
 	void testFindUserByName() throws Exception{
 		//given
+		prepareUserRepo();
 		String input = "j";
 
 		//when
@@ -206,8 +209,9 @@ class UserControllerTests {
 	@Test
 	void testEditUser() throws Exception{
 		//given
+		prepareUserRepo();
 		User user = new User("michal", "chudzik", "mchudzik@gmail.com");
-		Long id = repo.findAll().get(1).getId();
+		Long id = repo.findAll().get(0).getId();
 		String requestJson = objectMapper.writeValueAsString(user);
 
 		//when
@@ -219,7 +223,7 @@ class UserControllerTests {
 
 		String json = result.getResponse().getContentAsString();
 		User createdUser = objectMapper.readValue(json, User.class);
-		User editedUser = repo.findAll().get(1);
+		User editedUser = repo.findAll().get(0);
 
 		//then
 		assertEquals(editedUser, createdUser);

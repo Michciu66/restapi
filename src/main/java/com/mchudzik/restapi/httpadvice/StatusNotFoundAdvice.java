@@ -14,7 +14,7 @@ public class StatusNotFoundAdvice {
     @ResponseBody
     @ExceptionHandler(StatusNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    String statuskNotFoundHandler(StatusNotFoundException e)
+    String statusNotFoundHandler(StatusNotFoundException e)
     {
         return e.getMessage();
     }

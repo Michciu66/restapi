@@ -57,13 +57,13 @@ public class TaskController {
     }
 
     @GetMapping("/byUser")
-    public CollectionModel<EntityModel<Task>> findTaskByUserID(@RequestParam Long id)
+    public CollectionModel<EntityModel<Task>> findTaskByUserID(@RequestParam Long userId)
     {
-        List<EntityModel<Task>> tasks = repo.findAllByAssignedUsers(id).stream()
+        List<EntityModel<Task>> tasks = repo.findAllByAssignedUsers(userId).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
-        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskByUserID(id)).withSelfRel());
+        return CollectionModel.of(tasks, linkTo(methodOn(TaskController.class).findTaskByUserID(userId)).withSelfRel());
     }
 
     @GetMapping("/byName")
@@ -95,15 +95,15 @@ public class TaskController {
 
 
     @GetMapping("/byDate")
-    public CollectionModel<EntityModel<Task>> findTaskBetweenDates(@RequestParam LocalDate startDate, @RequestParam(required=false) LocalDate endDate)
+    public CollectionModel<EntityModel<Task>> findTaskBetweenDates(@RequestParam LocalDate endDate, @RequestParam(required=false) LocalDate startDate)
     {
-        if (endDate == null) {
-            List<EntityModel<Task>> tasks = repo.findAllByFinishDateLessThanEqual(startDate).stream()
+        if (startDate == null) {
+            List<EntityModel<Task>> tasks = repo.findAllByFinishDateLessThanEqual(endDate).stream()
                     .map(assembler::toModel)
                     .collect(Collectors.toList());
 
             return CollectionModel.of(tasks,
-                    linkTo(methodOn(TaskController.class).findTaskBetweenDates(startDate, null)).withSelfRel());
+                    linkTo(methodOn(TaskController.class).findTaskBetweenDates(endDate, null)).withSelfRel());
         } else {
 
             List<EntityModel<Task>> tasks = repo.findAllByFinishDateBetween(startDate, endDate).stream()
@@ -162,10 +162,10 @@ public class TaskController {
       return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
-    @PutMapping("/{taskId}/{userId}")
+    @PutMapping()
     public ResponseEntity<?> assignUser(@RequestParam Long taskId, @RequestParam Long userId)
     {
-        Task out = repo.findById(taskId).orElseThrow(() -> new TaskNotFoundException(userId));
+        Task out = repo.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
         userRepo.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         out.addUser(userId);
        
@@ -174,14 +174,10 @@ public class TaskController {
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
     
-    @DeleteMapping("/{taskId}/{userId}")
+    @DeleteMapping()
     public ResponseEntity<?> unassignUser(@RequestParam Long taskId, @RequestParam Long userId)
     {
-        Task out = repo.findById(taskId).orElse(null);
-        if (out != null)
-        {
-            out.removeUser(userId);
-        }
+        repo.findById(taskId).ifPresent(it -> it.removeUser(userId));
 
         return ResponseEntity.noContent().build();
     }  
