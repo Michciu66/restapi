@@ -50,7 +50,7 @@ public class UserController {
     public CollectionModel<EntityModel<User>> findUserByString(@RequestParam String name)
     {
         
-        List<EntityModel<User>> users =  repo.findAllByNameOrSurnameContainingIgnoreCase(name, name).stream()
+        List<EntityModel<User>> users =  repo.findAllByNameContainingOrSurnameContainingAllIgnoreCase(name, name).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
         

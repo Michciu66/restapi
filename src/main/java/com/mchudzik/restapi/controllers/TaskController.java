@@ -47,21 +47,6 @@ public class TaskController {
 
     }
 
-    @PostMapping
-    public ResponseEntity<?> createTask(@RequestBody Task task)
-    {
-        EntityModel<Task> entityModel = assembler.toModel(repo.save(task));
-
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTask(@PathVariable Long id) 
-    {
-        repo.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/{id}")
     public EntityModel<Task> findTaskByID(@PathVariable Long id)
     {
@@ -84,7 +69,7 @@ public class TaskController {
     @GetMapping("/byName")
     public CollectionModel<EntityModel<Task>> findTaskByString(@RequestParam String name)
     {
-        List<EntityModel<Task>> tasks = repo.findAllByNameOrDescContainingIgnoreCase(name,name).stream()
+        List<EntityModel<Task>> tasks = repo.findAllByNameContainingOrDescContainingAllIgnoreCase(name,name).stream()
         .map(assembler::toModel)
         .collect(Collectors.toList());
 
@@ -113,7 +98,7 @@ public class TaskController {
     public CollectionModel<EntityModel<Task>> findTaskBetweenDates(@RequestParam LocalDate startDate, @RequestParam(required=false) LocalDate endDate)
     {
         if (endDate == null) {
-            List<EntityModel<Task>> tasks = repo.findAllWithFinishDateBefore(startDate).stream()
+            List<EntityModel<Task>> tasks = repo.findAllByFinishDateLessThanEqual(startDate).stream()
                     .map(assembler::toModel)
                     .collect(Collectors.toList());
 
@@ -128,6 +113,21 @@ public class TaskController {
             return CollectionModel.of(tasks,
                     linkTo(methodOn(TaskController.class).findTaskBetweenDates(startDate, endDate)).withSelfRel());
         }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createTask(@RequestBody Task task)
+    {
+        EntityModel<Task> entityModel = assembler.toModel(repo.save(task));
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long id) 
+    {
+        repo.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/{id}")
@@ -177,8 +177,11 @@ public class TaskController {
     @DeleteMapping("/{taskId}/{userId}")
     public ResponseEntity<?> unassignUser(@RequestParam Long taskId, @RequestParam Long userId)
     {
-        Task out = repo.findById(taskId).orElseThrow(() -> new TaskNotFoundException(userId));
-        out.removeUser(userId);
+        Task out = repo.findById(taskId).orElse(null);
+        if (out != null)
+        {
+            out.removeUser(userId);
+        }
 
         return ResponseEntity.noContent().build();
     }  

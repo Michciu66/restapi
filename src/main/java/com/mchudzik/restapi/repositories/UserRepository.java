@@ -9,5 +9,5 @@ import com.mchudzik.restapi.models.User;
 public interface UserRepository extends JpaRepository<User,Long>{
     
 
-    List<User> findAllByNameOrSurnameContainingIgnoreCase(String name, String surname);
+    List<User> findAllByNameContainingOrSurnameContainingAllIgnoreCase(String name, String surname);
 }
