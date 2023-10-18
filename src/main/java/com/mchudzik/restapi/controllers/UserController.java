@@ -36,7 +36,28 @@ public class UserController {
 
         return CollectionModel.of(users, linkTo(methodOn(UserController.class).listUsers()).withSelfRel());
     }
-
+    
+    @GetMapping("/{id}")
+    public EntityModel<User> findUserByID(@PathVariable Long id)
+    {
+        User user = repo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        
+        return assembler.toModel(user);
+        
+    }
+    
+    @GetMapping("/byName")
+    public CollectionModel<EntityModel<User>> findUserByString(@RequestParam String name)
+    {
+        
+        List<EntityModel<User>> users =  repo.findAllByNameOrSurnameContainingIgnoreCase(name, name).stream()
+        .map(assembler::toModel)
+        .collect(Collectors.toList());
+        
+        return CollectionModel.of(users, linkTo(methodOn(UserController.class).findUserByString(name)).withSelfRel());
+        
+    }
+    
     @PostMapping()
     public ResponseEntity<?> createUser(@RequestBody User user)
     {
@@ -46,35 +67,7 @@ public class UserController {
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) 
-    {
-        repo.deleteById(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}")
-    public EntityModel<User> findUserByID(@PathVariable Long id)
-    {
-        User user = repo.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-        
-        return assembler.toModel(user);
-
-    }
-
-    @GetMapping("ByName")
-    public CollectionModel<EntityModel<User>> findUserByString(@RequestParam String str)
-    {
-
-        List<EntityModel<User>> users =  repo.findAllByNameOrSurnameContainingIgnoreCase(str, str).stream()
-        .map(assembler::toModel)
-        .collect(Collectors.toList());
-
-        return CollectionModel.of(users, linkTo(methodOn(UserController.class).findUserByString(str)).withSelfRel());
-
-    }
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<?> editUser(@RequestBody User newUser, @PathVariable Long id) 
     {
@@ -83,14 +76,22 @@ public class UserController {
         user.setSurname(newUser.getSurname());
         user.setEmail(newUser.getEmail());
         return repo.save(user);
-      })
-      .orElseGet(() -> {
+    })
+    .orElseGet(() -> {
         newUser.setID(id);
         return repo.save(newUser);
-      });
+    });
+    
+    EntityModel<User> entityModel = assembler.toModel(editedUser);
+    
+    return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+}
 
-      EntityModel<User> entityModel = assembler.toModel(editedUser);
-
-      return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) 
+    {
+        repo.deleteById(id);
+        
+        return ResponseEntity.noContent().build();
     }
 }

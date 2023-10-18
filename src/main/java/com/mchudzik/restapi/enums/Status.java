@@ -5,5 +5,5 @@ public enum Status {
     IN_PROGRESS, 
     IN_VERIFICATION, 
     COMPLETED, 
-    ABANDONED;
+    ABANDONED
 }
